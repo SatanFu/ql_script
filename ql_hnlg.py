@@ -2,7 +2,6 @@
 cron: 32 9 * * *
 new Env('华南理工大学自学考试公告');
 """
-from turtle import title
 import requests
 from lxml import etree
 import os
