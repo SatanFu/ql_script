@@ -194,8 +194,9 @@ def telegram_bot(title, content):
                                      headers=headers,
                                      params=payload,
                                      proxies=proxies).json()
-        except:
+        except  Exception as e1:
             print('推送失败！')
+            print(e1)
         if response['ok']:
             print('推送成功！')
         else:
