@@ -54,6 +54,29 @@ async function getTwitter() {
         console.log("登录成功");
 
 
+        const setting = await page.waitForSelector("a[data-testid=settingsAppBar]")
+        await setting.click()
+
+        const location = await page.waitForSelector("a[data-testid=exploreLocations]")
+        await location.click()
+
+        const search = await page.waitForSelector("label[data-testid=locationSearchBox_label]")
+        await search.click()
+
+
+        await page.type("input[data-testid=locationSearchBox]", "美国", { delay: 50 });
+
+        await page.waitForNetworkIdle({ idleTime: 1500 });
+        await page.waitForSelector("div[data-testid=cellInnerDiv] > div[role=button]")
+        const locations = await page.$$("div[data-testid=cellInnerDiv] > div[role=button]")
+        if (locations && locations.length > 0) {
+            await locations[0].click()
+        }
+
+        const close = await page.waitForSelector("div[data-testid=app-bar-close]")
+        await close.click()
+
+        await page.waitForNetworkIdle({ idleTime: 1500 });
         await page.waitForSelector("[data-testid=cellInnerDiv]");
         await page.waitForNetworkIdle({ idleTime: 1500 });
         var items = await getItems(page)
