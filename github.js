@@ -1,18 +1,14 @@
-const dotenv = require('dotenv')
-const puppeteer = require('puppeteer')
-const { insertWebSite } = require("./db");
-
+const puppeteer = require('puppeteer');
+const { postWebsite } = require('./http');
 
 const url = "https://github.com/trending?since=daily";
 
-
 async function getGithub() {
-
+    console.log("-----------------github start-------------------");
     let browser
     let page
 
     try {
-        dotenv.config()
         browser = await puppeteer.launch({
             headless: true,
             args: ['--no-sandbox']
@@ -24,8 +20,10 @@ async function getGithub() {
         await page.waitForSelector("div[class=Box]");
         console.log("获取item");
         var trendings = await getItems(page)
-        console.log(JSON.stringify(trendings));
-        // await insertWebSite("Github", JSON.stringify(trendings), "6,")
+        console.log(`github length: ${trendings.length}`);
+
+        const result = await postWebsite(1, "Github", JSON.stringify(trendings), "6,")
+        console.log(result.data);
     } catch (err) {
         console.error(err);
     } finally {
@@ -36,6 +34,7 @@ async function getGithub() {
             await browser.close()
         }
     }
+    console.log("-----------------github end-------------------");
 }
 
 async function getItems(page) {
@@ -43,4 +42,8 @@ async function getItems(page) {
 }
 
 
-getGithub()
+// getGithub()
+
+module.exports = {
+    getGithub
+}

@@ -1,14 +1,13 @@
 const dotenv = require('dotenv')
 const puppeteer = require('puppeteer')
 const { writeFile, readFile } = require("./util");
-const { insertWebSite } = require("./db");
+const { postWebsite } = require('./http');
 
-
-const url = "https://twitter.com/explore/tabs/trending";
+const url = "https://twitter.com/i/trends";
 
 
 async function getTwitter() {
-
+    console.log("-----------------twitter start-------------------");
     let browser
     let page
 
@@ -30,7 +29,8 @@ async function getTwitter() {
         }
 
         await page.goto(url, { timeout: 500 * 1000 })
-        // await page.waitForNetworkIdle({ idleTime: 500 });
+
+        await page.waitForNetworkIdle({ idleTime: 500 });
         const signInToText = await page.$eval("*", (el) => el.innerText);
         if (signInToText.includes("Sign in to") || signInToText.includes("注册")) {
             console.log("跳转登录");
@@ -38,7 +38,7 @@ async function getTwitter() {
             await page.type("input[autocomplete=username]", process.env.TWITTER_EMAIL, { delay: 50 });
             await page.keyboard.press('Enter');
 
-            // await page.waitForNetworkIdle({ idleTime: 500 });
+            await page.waitForNetworkIdle({ idleTime: 500 });
             const extractedText = await page.$eval("*", (el) => el.innerText);
             if (extractedText.includes("Enter your phone number or username") || extractedText.includes("输入你的手机号码或用户名")) {
                 await page.waitForSelector("[autocomplete=on]");
@@ -46,7 +46,7 @@ async function getTwitter() {
                 await page.keyboard.press('Enter');
             }
 
-            // await page.waitForNetworkIdle({ idleTime: 500 });
+            await page.waitForNetworkIdle({ idleTime: 500 });
             await page.waitForSelector("[autocomplete=current-password]");
             await page.type("input[autocomplete=current-password]", process.env.TWITTER_PASSWORD, { delay: 50 });
             await page.keyboard.press('Enter');
@@ -97,8 +97,9 @@ async function getTwitter() {
             title: item,
             link: `https://twitter.com/search?q=${encodeURIComponent(item)}&src=trend_click&vertical=trends`
         }));
-        console.log(JSON.stringify(trendings));
-        // await insertWebSite("Twitter", JSON.stringify(trendings), "1,3,")
+        console.log(`twitter length: ${trendings.length}`);
+        const result = await postWebsite(5, "Twitter", JSON.stringify(trendings), "1,3,")
+        console.log(result.data);
     } catch (err) {
         console.error(err);
     } finally {
@@ -109,6 +110,7 @@ async function getTwitter() {
             await browser.close()
         }
     }
+    console.log("-----------------twitter end-------------------");
 }
 
 async function getItems(page) {
@@ -116,4 +118,8 @@ async function getItems(page) {
 }
 
 
-getTwitter();
+// getTwitter();
+
+module.exports = {
+    getTwitter
+}

@@ -1,18 +1,15 @@
-const dotenv = require('dotenv')
 const puppeteer = require('puppeteer')
-const { insertWebSite } = require("./db");
-
+const { postWebsite } = require('./http');
 
 const url = "https://news.ycombinator.com/front";
 
 
-async function getGithub() {
-
+async function getYcHackerNews() {
+    console.log("-----------------yc_hacker_news start-------------------");
     let browser
     let page
 
     try {
-        dotenv.config()
         browser = await puppeteer.launch({
             headless: true,
             args: ['--no-sandbox']
@@ -22,8 +19,9 @@ async function getGithub() {
         await page.waitForSelector("tr[class=athing]");
         console.log("获取item");
         var trendings = await getItems(page)
-        console.log(JSON.stringify(trendings));
-        // await insertWebSite("Github", JSON.stringify(trendings), "6,")
+        console.log(`yc hacker news length: ${trendings.length}`);
+        const result = await postWebsite(6, "HackerNews(YC)", JSON.stringify(trendings), "1,2,")
+        console.log(result.data);
     } catch (err) {
         console.error(err);
     } finally {
@@ -34,6 +32,7 @@ async function getGithub() {
             await browser.close()
         }
     }
+    console.log("-----------------yc_hacker_news end-------------------");
 }
 
 async function getItems(page) {
@@ -41,4 +40,8 @@ async function getItems(page) {
 }
 
 
-getGithub()
+// getYcHackerNews()
+
+module.exports = {
+    getYcHackerNews
+}

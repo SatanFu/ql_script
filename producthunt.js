@@ -1,14 +1,13 @@
-const dotenv = require('dotenv')
 const puppeteer = require('puppeteer')
-const { insertWebSite } = require("./db");
+const { postWebsite } = require('./http');
 
 const url = "https://producthunt-trending.js.org/?range=daily";
 
-async function getProduct() {
+async function getProductHunt() {
+    console.log("-----------------producthunt start-------------------");
     let browser
     let page
     try {
-        dotenv.config()
         browser = await puppeteer.launch({
             headless: true,
             args: ['--no-sandbox']
@@ -18,8 +17,9 @@ async function getProduct() {
         await page.waitForSelector("div[class=item]");
         await page.waitForNetworkIdle({ idleTime: 1500 });
         var trendings = await getItems(page)
-        console.log(JSON.stringify(trendings));
-        // await insertWebSite("Twitter", JSON.stringify(trendings), "1,7,")
+        console.log(`producthunt length: ${trendings.length}`);
+        const result = await postWebsite(3, "ProductHunt", JSON.stringify(trendings), "1,7,")
+        console.log(result.data);
     } catch (err) {
         console.error(err);
     } finally {
@@ -30,10 +30,15 @@ async function getProduct() {
             await browser.close()
         }
     }
+    console.log("-----------------producthunt end-------------------");
 }
 
 async function getItems(page) {
     return await page.$$eval('div[class=item] div[class=item-container]', divs => divs.map((el, idx) => ({ id: idx + 1, title: el.querySelector('div[class=body] > div[class=main] > div[class=main-text] > h5 > a').innerText, link: el.querySelector('div[class=footer] > a').getAttribute('href') })))
 }
 
-getProduct()
+// getProductHunt()
+
+module.exports = {
+    getProductHunt
+}

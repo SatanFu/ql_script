@@ -1,137 +1,35 @@
 
-async function load() {
+/*
+TodayHotHub
+cron "* *\/5 * * * * *"
+tag=TodayHotHub
+ */
+const $ = new Env('TodayHotHub');
 
-    require('dotenv').config()
-    const mysql = require('mysql2/promise')
-    console.log(process.env.DATABASE_URL);
-    const connection = await mysql.createConnection(process.env.DATABASE_URL)
-    // const categories = [
-    //     {
-    //         id: 1,
-    //         name: "热门",
-    //     },
-    //     {
-    //         id: 2,
-    //         name: "综合",
-    //     },
-    //     {
-    //         id: 3,
-    //         name: "科技",
-    //     },
-    //     {
-    //         id: 4,
-    //         name: "社区",
-    //     },
-    //     {
-    //         id: 5,
-    //         name: "视频",
-    //     },
-    //     {
-    //         id: 6,
-    //         name: "开发",
-    //     },
-    // ];
+const { getGithub } = require("./github")
+const { getGoogle } = require("./google")
+const { getProductHunt } = require("./producthunt")
+const { getReddit } = require("./reddit")
+const { getTwitter } = require("./twitter")
+const { getYcHackerNews } = require("./yc_hacker_news")
+const { getYoutube } = require("./youtube")
 
-    // categories.forEach(async (item) => {
-    //     await connection.query('INSERT INTO `category` (id, name, updated_at) VALUES (?, ?, NOW())', [item.id, item.name]);
-    // })
+!(async () => {
+    await getGithub()
+    await getGoogle()
+    await getProductHunt()
+    await getReddit()
+    await getTwitter()
+    await getYcHackerNews()
+    await getYoutube()
+})()
+    .catch((e) => {
+        $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
+    })
+    .finally(() => {
+        $.done();
+    })
 
-    // const websites = [
-    //     {
-    //         name: "Twitter",
-    //         content: `[{"id":1,"title":"Twitter title 1","link":"https://www.baidu.com"},{"id":2,"title":"Twitter title 2","link":"https://www.baidu.com"},{"id":3,"title":"Twitter title 3","link":"https://www.baidu.com"},{"id":4,"title":"Twitter title 4","link":"https://www.baidu.com"},{"id":5,"title":"Twitter title 5","link":"https://www.baidu.com"},{"id":6,"title":"Twitter title 6","link":"https://www.baidu.com"},{"id":7,"title":"Twitter title 7","link":"https://www.baidu.com"},{"id":8,"title":"Twitter title 8","link":"https://www.baidu.com"},{"id":9,"title":"Twitter title 9","link":"https://www.baidu.com"},{"id":10,"title":"Twitter title 10","link":"https://www.baidu.com"}]`,
-    //         category: "1,2,4,",
-    //     },
-    //     {
-    //         name: "Facebook",
-    //         content: `[{"id":1,"title":"Facebook title 1","link":"https://www.baidu.com"},{"id":2,"title":"Facebook title 2","link":"https://www.baidu.com"},{"id":3,"title":"Facebook title 3","link":"https://www.baidu.com"},{"id":4,"title":"Facebook title 4","link":"https://www.baidu.com"},{"id":5,"title":"Facebook title 5","link":"https://www.baidu.com"},{"id":6,"title":"Facebook title 6","link":"https://www.baidu.com"},{"id":7,"title":"Facebook title 7","link":"https://www.baidu.com"},{"id":8,"title":"Facebook title 8","link":"https://www.baidu.com"},{"id":9,"title":"Facebook title 9","link":"https://www.baidu.com"},{"id":10,"title":"Facebook title 10","link":"https://www.baidu.com"}]`,
-    //         category: "1,2,4,",
-    //     },
-    //     {
-    //         name: "Github",
-    //         content: `[{"id":1,"title":"Github title 1","link":"https://www.baidu.com"},{"id":2,"title":"Github title 2","link":"https://www.baidu.com"},{"id":3,"title":"Github title 3","link":"https://www.baidu.com"},{"id":4,"title":"Github title 4","link":"https://www.baidu.com"},{"id":5,"title":"Github title 5","link":"https://www.baidu.com"},{"id":6,"title":"Github title 6","link":"https://www.baidu.com"},{"id":7,"title":"Github title 7","link":"https://www.baidu.com"},{"id":8,"title":"Github title 8","link":"https://www.baidu.com"},{"id":9,"title":"Github title 9","link":"https://www.baidu.com"},{"id":10,"title":"Github title 10","link":"https://www.baidu.com"}]`,
-    //         category: "1,2,3,6,",
-    //     },
-    //     {
-    //         name: "WhatsApp",
-    //         content: `[{"id":1,"title":"WhatsApp title 1","link":"https://www.baidu.com"},{"id":2,"title":"WhatsApp title 2","link":"https://www.baidu.com"},{"id":3,"title":"WhatsApp title 3","link":"https://www.baidu.com"},{"id":4,"title":"WhatsApp title 4","link":"https://www.baidu.com"},{"id":5,"title":"WhatsApp title 5","link":"https://www.baidu.com"},{"id":6,"title":"WhatsApp title 6","link":"https://www.baidu.com"},{"id":7,"title":"WhatsApp title 7","link":"https://www.baidu.com"},{"id":8,"title":"WhatsApp title 8","link":"https://www.baidu.com"},{"id":9,"title":"WhatsApp title 9","link":"https://www.baidu.com"},{"id":10,"title":"WhatsApp title 10","link":"https://www.baidu.com"}]`,
-    //         category: "1,2,",
-    //     },
-    //     {
-    //         name: "Youtube",
-    //         content: `[{"id":1,"title":"Youtube title 1","link":"https://www.baidu.com"},{"id":2,"title":"Youtube title 2","link":"https://www.baidu.com"},{"id":3,"title":"Youtube title 3","link":"https://www.baidu.com"},{"id":4,"title":"Youtube title 4","link":"https://www.baidu.com"},{"id":5,"title":"Youtube title 5","link":"https://www.baidu.com"},{"id":6,"title":"Youtube title 6","link":"https://www.baidu.com"},{"id":7,"title":"Youtube title 7","link":"https://www.baidu.com"},{"id":8,"title":"Youtube title 8","link":"https://www.baidu.com"},{"id":9,"title":"Youtube title 9","link":"https://www.baidu.com"},{"id":10,"title":"Youtube title 10","link":"https://www.baidu.com"}]`,
-    //         category: "1,2,5,",
-    //     },
-    //     {
-    //         name: "Skype",
-    //         content: `[{"id":1,"title":"Skype title 1","link":"https://www.baidu.com"},{"id":2,"title":"Skype title 2","link":"https://www.baidu.com"},{"id":3,"title":"Skype title 3","link":"https://www.baidu.com"},{"id":4,"title":"Skype title 4","link":"https://www.baidu.com"},{"id":5,"title":"Skype title 5","link":"https://www.baidu.com"},{"id":6,"title":"Skype title 6","link":"https://www.baidu.com"},{"id":7,"title":"Skype title 7","link":"https://www.baidu.com"},{"id":8,"title":"Skype title 8","link":"https://www.baidu.com"},{"id":9,"title":"Skype title 9","link":"https://www.baidu.com"},{"id":10,"title":"Skype title 10","link":"https://www.baidu.com"}]`,
-    //         category: "1,2,",
-    //     },
-    //     {
-    //         name: "Gitlab",
-    //         content: `[{"id":1,"title":"Gitlab title 1","link":"https://www.baidu.com"},{"id":2,"title":"Gitlab title 2","link":"https://www.baidu.com"},{"id":3,"title":"Gitlab title 3","link":"https://www.baidu.com"},{"id":4,"title":"Gitlab title 4","link":"https://www.baidu.com"},{"id":5,"title":"Gitlab title 5","link":"https://www.baidu.com"},{"id":6,"title":"Gitlab title 6","link":"https://www.baidu.com"},{"id":7,"title":"Gitlab title 7","link":"https://www.baidu.com"},{"id":8,"title":"Gitlab title 8","link":"https://www.baidu.com"},{"id":9,"title":"Gitlab title 9","link":"https://www.baidu.com"},{"id":10,"title":"Gitlab title 10","link":"https://www.baidu.com"}]`,
-    //         category: "2,3,6,",
-    //     },
-    //     {
-    //         name: "Medium",
-    //         content: `[{"id":1,"title":"Medium title 1","link":"https://www.baidu.com"},{"id":2,"title":"Medium title 2","link":"https://www.baidu.com"},{"id":3,"title":"Medium title 3","link":"https://www.baidu.com"},{"id":4,"title":"Medium title 4","link":"https://www.baidu.com"},{"id":5,"title":"Medium title 5","link":"https://www.baidu.com"},{"id":6,"title":"Medium title 6","link":"https://www.baidu.com"},{"id":7,"title":"Medium title 7","link":"https://www.baidu.com"},{"id":8,"title":"Medium title 8","link":"https://www.baidu.com"},{"id":9,"title":"Medium title 9","link":"https://www.baidu.com"},{"id":10,"title":"Medium title 10","link":"https://www.baidu.com"}]`,
-    //         category: "1,2,4,",
-    //     },
-    //     {
-    //         name: "Linkedin",
-    //         content: `[{"id":1,"title":"Linkedin title 1","link":"https://www.baidu.com"},{"id":2,"title":"Linkedin title 2","link":"https://www.baidu.com"},{"id":3,"title":"Linkedin title 3","link":"https://www.baidu.com"},{"id":4,"title":"Linkedin title 4","link":"https://www.baidu.com"},{"id":5,"title":"Linkedin title 5","link":"https://www.baidu.com"},{"id":6,"title":"Linkedin title 6","link":"https://www.baidu.com"},{"id":7,"title":"Linkedin title 7","link":"https://www.baidu.com"},{"id":8,"title":"Linkedin title 8","link":"https://www.baidu.com"},{"id":9,"title":"Linkedin title 9","link":"https://www.baidu.com"},{"id":10,"title":"Linkedin title 10","link":"https://www.baidu.com"}]`,
-    //         category: "1,2,3,",
-    //     },
-    //     {
-    //         name: "Google",
-    //         content: `[{"id":1,"title":"Google title 1","link":"https://www.baidu.com"},{"id":2,"title":"Google title 2","link":"https://www.baidu.com"},{"id":3,"title":"Google title 3","link":"https://www.baidu.com"},{"id":4,"title":"Google title 4","link":"https://www.baidu.com"},{"id":5,"title":"Google title 5","link":"https://www.baidu.com"},{"id":6,"title":"Google title 6","link":"https://www.baidu.com"},{"id":7,"title":"Google title 7","link":"https://www.baidu.com"},{"id":8,"title":"Google title 8","link":"https://www.baidu.com"},{"id":9,"title":"Google title 9","link":"https://www.baidu.com"},{"id":10,"title":"Google title 10","link":"https://www.baidu.com"}]`,
-    //         category: "1,2,3,",
-    //     },
-    //     {
-    //         name: "Slack",
-    //         content: `[{"id":1,"title":"Slack title 1","link":"https://www.baidu.com"},{"id":2,"title":"Slack title 2","link":"https://www.baidu.com"},{"id":3,"title":"Slack title 3","link":"https://www.baidu.com"},{"id":4,"title":"Slack title 4","link":"https://www.baidu.com"},{"id":5,"title":"Slack title 5","link":"https://www.baidu.com"},{"id":6,"title":"Slack title 6","link":"https://www.baidu.com"},{"id":7,"title":"Slack title 7","link":"https://www.baidu.com"},{"id":8,"title":"Slack title 8","link":"https://www.baidu.com"},{"id":9,"title":"Slack title 9","link":"https://www.baidu.com"},{"id":10,"title":"Slack title 10","link":"https://www.baidu.com"}]`,
-    //         category: "2,4,",
-    //     },
-    //     {
-    //         name: "Behance",
-    //         content: `[{"id":1,"title":"Behance title 1","link":"https://www.baidu.com"},{"id":2,"title":"Behance title 2","link":"https://www.baidu.com"},{"id":3,"title":"Behance title 3","link":"https://www.baidu.com"},{"id":4,"title":"Behance title 4","link":"https://www.baidu.com"},{"id":5,"title":"Behance title 5","link":"https://www.baidu.com"},{"id":6,"title":"Behance title 6","link":"https://www.baidu.com"},{"id":7,"title":"Behance title 7","link":"https://www.baidu.com"},{"id":8,"title":"Behance title 8","link":"https://www.baidu.com"},{"id":9,"title":"Behance title 9","link":"https://www.baidu.com"},{"id":10,"title":"Behance title 10","link":"https://www.baidu.com"}]`,
-    //         category: "2,4,",
-    //     },
-    //     {
-    //         name: "Dribbble",
-    //         content: `[{"id":1,"title":"Dribbble title 1","link":"https://www.baidu.com"},{"id":2,"title":"Dribbble title 2","link":"https://www.baidu.com"},{"id":3,"title":"Dribbble title 3","link":"https://www.baidu.com"},{"id":4,"title":"Dribbble title 4","link":"https://www.baidu.com"},{"id":5,"title":"Dribbble title 5","link":"https://www.baidu.com"},{"id":6,"title":"Dribbble title 6","link":"https://www.baidu.com"},{"id":7,"title":"Dribbble title 7","link":"https://www.baidu.com"},{"id":8,"title":"Dribbble title 8","link":"https://www.baidu.com"},{"id":9,"title":"Dribbble title 9","link":"https://www.baidu.com"},{"id":10,"title":"Dribbble title 10","link":"https://www.baidu.com"}]`,
-    //         category: "2,4,",
-    //     },
-    //     {
-    //         name: "Instagram",
-    //         content: `[{"id":1,"title":"Instagram title 1","link":"https://www.baidu.com"},{"id":2,"title":"Instagram title 2","link":"https://www.baidu.com"},{"id":3,"title":"Instagram title 3","link":"https://www.baidu.com"},{"id":4,"title":"Instagram title 4","link":"https://www.baidu.com"},{"id":5,"title":"Instagram title 5","link":"https://www.baidu.com"},{"id":6,"title":"Instagram title 6","link":"https://www.baidu.com"},{"id":7,"title":"Instagram title 7","link":"https://www.baidu.com"},{"id":8,"title":"Instagram title 8","link":"https://www.baidu.com"},{"id":9,"title":"Instagram title 9","link":"https://www.baidu.com"},{"id":10,"title":"Instagram title 10","link":"https://www.baidu.com"}]`,
-    //         category: "1,2,4,",
-    //     },
-    //     {
-    //         name: "Yahoo",
-    //         content: `[{"id":1,"title":"Yahoo title 1","link":"https://www.baidu.com"},{"id":2,"title":"Yahoo title 2","link":"https://www.baidu.com"},{"id":3,"title":"Yahoo title 3","link":"https://www.baidu.com"},{"id":4,"title":"Yahoo title 4","link":"https://www.baidu.com"},{"id":5,"title":"Yahoo title 5","link":"https://www.baidu.com"},{"id":6,"title":"Yahoo title 6","link":"https://www.baidu.com"},{"id":7,"title":"Yahoo title 7","link":"https://www.baidu.com"},{"id":8,"title":"Yahoo title 8","link":"https://www.baidu.com"},{"id":9,"title":"Yahoo title 9","link":"https://www.baidu.com"},{"id":10,"title":"Yahoo title 10","link":"https://www.baidu.com"}]`,
-    //         category: "1,2,4,",
-    //     },
-    //     {
-    //         name: "Reddit",
-    //         content: `[{"id":1,"title":"Reddit title 1","link":"https://www.baidu.com"},{"id":2,"title":"Reddit title 2","link":"https://www.baidu.com"},{"id":3,"title":"Reddit title 3","link":"https://www.baidu.com"},{"id":4,"title":"Reddit title 4","link":"https://www.baidu.com"},{"id":5,"title":"Reddit title 5","link":"https://www.baidu.com"},{"id":6,"title":"Reddit title 6","link":"https://www.baidu.com"},{"id":7,"title":"Reddit title 7","link":"https://www.baidu.com"},{"id":8,"title":"Reddit title 8","link":"https://www.baidu.com"},{"id":9,"title":"Reddit title 9","link":"https://www.baidu.com"},{"id":10,"title":"Reddit title 10","link":"https://www.baidu.com"}]`,
-    //         category: "1,2,4,",
-    //     },
-    // ];
 
-    // websites.forEach(async (item) => {
-    //     await connection.query('INSERT INTO `website` (name, content, category, updated_at) VALUES (?, ?, ?, NOW())', [item.name, item.content, item.category]);
-    // })
-
-    const [categoryRows, categoryFields] = await connection.execute('SELECT * FROM category');
-    console.log(`category ${categoryRows} ${categoryFields}`);
-
-    const [websiteRows, websiteFields] = await connection.execute('SELECT * FROM website');
-    console.log(`website ${websiteRows} ${websiteFields}`);
-
-    console.log('Connected to PlanetScale!')
-    connection.end()
-}
-
-load()
-
+// prettier-ignore
+function Env(t, e) { "undefined" != typeof process && JSON.stringify(process.env).indexOf("GITHUB") > -1 && process.exit(0); class s { constructor(t) { this.env = t } send(t, e = "GET") { t = "string" == typeof t ? { url: t } : t; let s = this.get; return "POST" === e && (s = this.post), new Promise((e, i) => { s.call(this, t, (t, s, r) => { t ? i(t) : e(s) }) }) } get(t) { return this.send.call(this.env, t) } post(t) { return this.send.call(this.env, t, "POST") } } return new class { constructor(t, e) { this.name = t, this.http = new s(this), this.data = null, this.dataFile = "box.dat", this.logs = [], this.isMute = !1, this.isNeedRewrite = !1, this.logSeparator = "\n", this.startTime = (new Date).getTime(), Object.assign(this, e), this.log("", `🔔${this.name}, 开始!`) } isNode() { return "undefined" != typeof module && !!module.exports } isQuanX() { return "undefined" != typeof $task } isSurge() { return "undefined" != typeof $httpClient && "undefined" == typeof $loon } isLoon() { return "undefined" != typeof $loon } toObj(t, e = null) { try { return JSON.parse(t) } catch { return e } } toStr(t, e = null) { try { return JSON.stringify(t) } catch { return e } } getjson(t, e) { let s = e; const i = this.getdata(t); if (i) try { s = JSON.parse(this.getdata(t)) } catch { } return s } setjson(t, e) { try { return this.setdata(JSON.stringify(t), e) } catch { return !1 } } getScript(t) { return new Promise(e => { this.get({ url: t }, (t, s, i) => e(i)) }) } runScript(t, e) { return new Promise(s => { let i = this.getdata("@chavy_boxjs_userCfgs.httpapi"); i = i ? i.replace(/\n/g, "").trim() : i; let r = this.getdata("@chavy_boxjs_userCfgs.httpapi_timeout"); r = r ? 1 * r : 20, r = e && e.timeout ? e.timeout : r; const [o, h] = i.split("@"), n = { url: `http://${h}/v1/scripting/evaluate`, body: { script_text: t, mock_type: "cron", timeout: r }, headers: { "X-Key": o, Accept: "*/*" } }; this.post(n, (t, e, i) => s(i)) }).catch(t => this.logErr(t)) } loaddata() { if (!this.isNode()) return {}; { this.fs = this.fs ? this.fs : require("fs"), this.path = this.path ? this.path : require("path"); const t = this.path.resolve(this.dataFile), e = this.path.resolve(process.cwd(), this.dataFile), s = this.fs.existsSync(t), i = !s && this.fs.existsSync(e); if (!s && !i) return {}; { const i = s ? t : e; try { return JSON.parse(this.fs.readFileSync(i)) } catch (t) { return {} } } } } writedata() { if (this.isNode()) { this.fs = this.fs ? this.fs : require("fs"), this.path = this.path ? this.path : require("path"); const t = this.path.resolve(this.dataFile), e = this.path.resolve(process.cwd(), this.dataFile), s = this.fs.existsSync(t), i = !s && this.fs.existsSync(e), r = JSON.stringify(this.data); s ? this.fs.writeFileSync(t, r) : i ? this.fs.writeFileSync(e, r) : this.fs.writeFileSync(t, r) } } lodash_get(t, e, s) { const i = e.replace(/\[(\d+)\]/g, ".$1").split("."); let r = t; for (const t of i) if (r = Object(r)[t], void 0 === r) return s; return r } lodash_set(t, e, s) { return Object(t) !== t ? t : (Array.isArray(e) || (e = e.toString().match(/[^.[\]]+/g) || []), e.slice(0, -1).reduce((t, s, i) => Object(t[s]) === t[s] ? t[s] : t[s] = Math.abs(e[i + 1]) >> 0 == +e[i + 1] ? [] : {}, t)[e[e.length - 1]] = s, t) } getdata(t) { let e = this.getval(t); if (/^@/.test(t)) { const [, s, i] = /^@(.*?)\.(.*?)$/.exec(t), r = s ? this.getval(s) : ""; if (r) try { const t = JSON.parse(r); e = t ? this.lodash_get(t, i, "") : e } catch (t) { e = "" } } return e } setdata(t, e) { let s = !1; if (/^@/.test(e)) { const [, i, r] = /^@(.*?)\.(.*?)$/.exec(e), o = this.getval(i), h = i ? "null" === o ? null : o || "{}" : "{}"; try { const e = JSON.parse(h); this.lodash_set(e, r, t), s = this.setval(JSON.stringify(e), i) } catch (e) { const o = {}; this.lodash_set(o, r, t), s = this.setval(JSON.stringify(o), i) } } else s = this.setval(t, e); return s } getval(t) { return this.isSurge() || this.isLoon() ? $persistentStore.read(t) : this.isQuanX() ? $prefs.valueForKey(t) : this.isNode() ? (this.data = this.loaddata(), this.data[t]) : this.data && this.data[t] || null } setval(t, e) { return this.isSurge() || this.isLoon() ? $persistentStore.write(t, e) : this.isQuanX() ? $prefs.setValueForKey(t, e) : this.isNode() ? (this.data = this.loaddata(), this.data[e] = t, this.writedata(), !0) : this.data && this.data[e] || null } initGotEnv(t) { this.got = this.got ? this.got : require("got"), this.cktough = this.cktough ? this.cktough : require("tough-cookie"), this.ckjar = this.ckjar ? this.ckjar : new this.cktough.CookieJar, t && (t.headers = t.headers ? t.headers : {}, void 0 === t.headers.Cookie && void 0 === t.cookieJar && (t.cookieJar = this.ckjar)) } get(t, e = (() => { })) { t.headers && (delete t.headers["Content-Type"], delete t.headers["Content-Length"]), this.isSurge() || this.isLoon() ? (this.isSurge() && this.isNeedRewrite && (t.headers = t.headers || {}, Object.assign(t.headers, { "X-Surge-Skip-Scripting": !1 })), $httpClient.get(t, (t, s, i) => { !t && s && (s.body = i, s.statusCode = s.status), e(t, s, i) })) : this.isQuanX() ? (this.isNeedRewrite && (t.opts = t.opts || {}, Object.assign(t.opts, { hints: !1 })), $task.fetch(t).then(t => { const { statusCode: s, statusCode: i, headers: r, body: o } = t; e(null, { status: s, statusCode: i, headers: r, body: o }, o) }, t => e(t))) : this.isNode() && (this.initGotEnv(t), this.got(t).on("redirect", (t, e) => { try { if (t.headers["set-cookie"]) { const s = t.headers["set-cookie"].map(this.cktough.Cookie.parse).toString(); s && this.ckjar.setCookieSync(s, null), e.cookieJar = this.ckjar } } catch (t) { this.logErr(t) } }).then(t => { const { statusCode: s, statusCode: i, headers: r, body: o } = t; e(null, { status: s, statusCode: i, headers: r, body: o }, o) }, t => { const { message: s, response: i } = t; e(s, i, i && i.body) })) } post(t, e = (() => { })) { if (t.body && t.headers && !t.headers["Content-Type"] && (t.headers["Content-Type"] = "application/x-www-form-urlencoded"), t.headers && delete t.headers["Content-Length"], this.isSurge() || this.isLoon()) this.isSurge() && this.isNeedRewrite && (t.headers = t.headers || {}, Object.assign(t.headers, { "X-Surge-Skip-Scripting": !1 })), $httpClient.post(t, (t, s, i) => { !t && s && (s.body = i, s.statusCode = s.status), e(t, s, i) }); else if (this.isQuanX()) t.method = "POST", this.isNeedRewrite && (t.opts = t.opts || {}, Object.assign(t.opts, { hints: !1 })), $task.fetch(t).then(t => { const { statusCode: s, statusCode: i, headers: r, body: o } = t; e(null, { status: s, statusCode: i, headers: r, body: o }, o) }, t => e(t)); else if (this.isNode()) { this.initGotEnv(t); const { url: s, ...i } = t; this.got.post(s, i).then(t => { const { statusCode: s, statusCode: i, headers: r, body: o } = t; e(null, { status: s, statusCode: i, headers: r, body: o }, o) }, t => { const { message: s, response: i } = t; e(s, i, i && i.body) }) } } time(t, e = null) { const s = e ? new Date(e) : new Date; let i = { "M+": s.getMonth() + 1, "d+": s.getDate(), "H+": s.getHours(), "m+": s.getMinutes(), "s+": s.getSeconds(), "q+": Math.floor((s.getMonth() + 3) / 3), S: s.getMilliseconds() }; /(y+)/.test(t) && (t = t.replace(RegExp.$1, (s.getFullYear() + "").substr(4 - RegExp.$1.length))); for (let e in i) new RegExp("(" + e + ")").test(t) && (t = t.replace(RegExp.$1, 1 == RegExp.$1.length ? i[e] : ("00" + i[e]).substr(("" + i[e]).length))); return t } msg(e = t, s = "", i = "", r) { const o = t => { if (!t) return t; if ("string" == typeof t) return this.isLoon() ? t : this.isQuanX() ? { "open-url": t } : this.isSurge() ? { url: t } : void 0; if ("object" == typeof t) { if (this.isLoon()) { let e = t.openUrl || t.url || t["open-url"], s = t.mediaUrl || t["media-url"]; return { openUrl: e, mediaUrl: s } } if (this.isQuanX()) { let e = t["open-url"] || t.url || t.openUrl, s = t["media-url"] || t.mediaUrl; return { "open-url": e, "media-url": s } } if (this.isSurge()) { let e = t.url || t.openUrl || t["open-url"]; return { url: e } } } }; if (this.isMute || (this.isSurge() || this.isLoon() ? $notification.post(e, s, i, o(r)) : this.isQuanX() && $notify(e, s, i, o(r))), !this.isMuteLog) { let t = ["", "==============📣系统通知📣=============="]; t.push(e), s && t.push(s), i && t.push(i), console.log(t.join("\n")), this.logs = this.logs.concat(t) } } log(...t) { t.length > 0 && (this.logs = [...this.logs, ...t]), console.log(t.join(this.logSeparator)) } logErr(t, e) { const s = !this.isSurge() && !this.isQuanX() && !this.isLoon(); s ? this.log("", `❗️${this.name}, 错误!`, t.stack) : this.log("", `❗️${this.name}, 错误!`, t) } wait(t) { return new Promise(e => setTimeout(e, t)) } done(t = {}) { const e = (new Date).getTime(), s = (e - this.startTime) / 1e3; this.log("", `🔔${this.name}, 结束! 🕛 ${s} 秒`), this.log(), (this.isSurge() || this.isQuanX() || this.isLoon()) && $done(t) } }(t, e) }

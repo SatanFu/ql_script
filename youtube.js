@@ -1,13 +1,11 @@
-const cheerio = require("cheerio");
 const puppeteer = require('puppeteer');
-const { insertWebSite } = require("./db");
-const { writeFile, readFile } = require("./util");
-
+const { postWebsite } = require('./http');
 
 const url = "https://www.youtube.com/feed/trending?persist_gl=1&gl=US";
 
 
 async function getYoutube() {
+    console.log("-----------------youtube start-------------------");
     let browser
     let page
     try {
@@ -20,9 +18,9 @@ async function getYoutube() {
         await page.waitForSelector("ytd-item-section-renderer");
         await page.waitForNetworkIdle({ idleTime: 1500 });
         var trendings = await getItems(page)
-        console.log(JSON.stringify(trendings));
-        // await writeFile("twitter.json", JSON.stringify(trendings), "w")
-        // insertWebSite("Youtube", JSON.stringify(trendings), "1,5,")
+        console.log(`youtube length: ${trendings.length}`);
+        const result = await postWebsite(7, "Youtube", JSON.stringify(trendings), "1,5,")
+        console.log(result.data);
     } catch (err) {
         console.error(err);
     } finally {
@@ -33,6 +31,7 @@ async function getYoutube() {
             await browser.close()
         }
     }
+    console.log("-----------------youtube end-------------------");
 }
 
 async function getItems(page) {
@@ -54,4 +53,8 @@ async function getItems(page) {
     }));
 }
 
-getYoutube();
+// getYoutube();
+
+module.exports = {
+    getYoutube
+}

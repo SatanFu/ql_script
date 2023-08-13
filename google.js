@@ -1,18 +1,15 @@
-const dotenv = require('dotenv')
 const puppeteer = require('puppeteer')
-const { insertWebSite } = require("./db");
-
+const { postWebsite } = require('./http');
 
 const url = "https://trends.google.com/trends/trendingsearches/daily?geo=US";
 
 
 async function getGoogle() {
-
+    console.log("-----------------google start-------------------");
     let browser
     let page
 
     try {
-        dotenv.config()
         browser = await puppeteer.launch({
             headless: true,
             args: ['--no-sandbox']
@@ -27,8 +24,9 @@ async function getGoogle() {
             title: item,
             link: `https://trends.google.com/trends/trendingsearches/daily?geo=US&tt=${encodeURIComponent(item)}#${encodeURIComponent(item)}`
         }));
-        console.log(JSON.stringify(trendings));
-        // await insertWebSite("Twitter", JSON.stringify(trendings), "4,")
+        console.log(`google length: ${trendings.length}`);
+        const result = await postWebsite(2, "Google", JSON.stringify(trendings), "1,4,")
+        console.log(result.data);
     } catch (err) {
         console.error(err);
     } finally {
@@ -39,10 +37,15 @@ async function getGoogle() {
             await browser.close()
         }
     }
+    console.log("-----------------google end-------------------");
 }
 
 async function getItems(page) {
     return await page.$$eval('div[class=feed-list-wrapper] > md-list > feed-item div.details-wrapper > div.details > div.details-top > div > span', divs => divs.map((el) => (el.innerText)))
 }
 
-getGoogle()
+// getGoogle()
+
+module.exports = {
+    getGoogle
+}
