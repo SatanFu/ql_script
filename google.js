@@ -1,10 +1,12 @@
 const puppeteer = require('puppeteer')
 const { postWebsite } = require('./http');
+const { appendLog } = require('./util');
 
 const url = "https://trends.google.com/trends/trendingsearches/daily?geo=US";
 
 
 async function getGoogle() {
+    appendLog("-----------------google start-------------------\n")
     console.log("-----------------google start-------------------");
     let browser
     let page
@@ -27,6 +29,7 @@ async function getGoogle() {
         console.log(`google length: ${trendings.length}`);
         const result = await postWebsite(2, "Google", JSON.stringify(trendings), "1,4,")
         console.log(result.data);
+        appendLog(`${result.data}\n`)
     } catch (err) {
         console.error(err);
     } finally {
@@ -37,6 +40,7 @@ async function getGoogle() {
             await browser.close()
         }
     }
+    appendLog("-----------------google end-------------------\n")
     console.log("-----------------google end-------------------");
 }
 

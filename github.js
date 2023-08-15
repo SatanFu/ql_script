@@ -1,9 +1,11 @@
 const puppeteer = require('puppeteer');
 const { postWebsite } = require('./http');
+const { appendLog } = require('./util');
 
 const url = "https://github.com/trending?since=daily";
 
 async function getGithub() {
+    appendLog("-----------------github start-------------------\n")
     console.log("-----------------github start-------------------");
     let browser
     let page
@@ -24,6 +26,7 @@ async function getGithub() {
 
         const result = await postWebsite(1, "Github", JSON.stringify(trendings), "6,")
         console.log(result.data);
+        appendLog(`${result.data}\n`)
     } catch (err) {
         console.error(err);
     } finally {
@@ -34,6 +37,7 @@ async function getGithub() {
             await browser.close()
         }
     }
+    appendLog("-----------------github end-------------------\n")
     console.log("-----------------github end-------------------");
 }
 

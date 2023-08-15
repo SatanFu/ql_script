@@ -1,20 +1,21 @@
 const dotenv = require('dotenv')
 const puppeteer = require('puppeteer')
-const { writeFile, readFile } = require("./util");
+const { writeFile, readFile, setTimeout, appendLog } = require("./util");
 const { postWebsite } = require('./http');
 
 const url = "https://twitter.com/i/trends";
 
 
 async function getTwitter() {
+    appendLog("-----------------twitter start-------------------\n")
     console.log("-----------------twitter start-------------------");
     let browser
     let page
 
     try {
-        dotenv.config()
+        dotenv.config({ path: __dirname + '/.env' })
         browser = await puppeteer.launch({
-            headless: true,
+            headless: false,
             args: ['--no-sandbox']
         })
         page = await browser.newPage()
@@ -38,7 +39,7 @@ async function getTwitter() {
             await page.type("input[autocomplete=username]", process.env.TWITTER_EMAIL, { delay: 50 });
             await page.keyboard.press('Enter');
 
-            await page.waitForNetworkIdle({ idleTime: 500 });
+            await setTimeout(1500);
             const extractedText = await page.$eval("*", (el) => el.innerText);
             if (extractedText.includes("Enter your phone number or username") || extractedText.includes("输入你的手机号码或用户名")) {
                 await page.waitForSelector("[autocomplete=on]");
@@ -46,7 +47,7 @@ async function getTwitter() {
                 await page.keyboard.press('Enter');
             }
 
-            await page.waitForNetworkIdle({ idleTime: 500 });
+            await setTimeout(1500);
             await page.waitForSelector("[autocomplete=current-password]");
             await page.type("input[autocomplete=current-password]", process.env.TWITTER_PASSWORD, { delay: 50 });
             await page.keyboard.press('Enter');
@@ -66,7 +67,7 @@ async function getTwitter() {
 
         await page.type("input[data-testid=locationSearchBox]", "美国", { delay: 50 });
 
-        await page.waitForNetworkIdle({ idleTime: 1500 });
+        await setTimeout(1500);
         await page.waitForSelector("div[data-testid=cellInnerDiv] > div[role=button]")
         const locations = await page.$$("div[data-testid=cellInnerDiv] > div[role=button]")
         if (locations && locations.length > 0) {
@@ -76,15 +77,15 @@ async function getTwitter() {
         const close = await page.waitForSelector("div[data-testid=app-bar-close]")
         await close.click()
 
-        await page.waitForNetworkIdle({ idleTime: 1500 });
+        await setTimeout(1500);
         await page.waitForSelector("[data-testid=cellInnerDiv]");
-        await page.waitForNetworkIdle({ idleTime: 1500 });
+        await setTimeout(1500);
         var items = await getItems(page)
 
         await page.evaluate(() => {
             window.scrollBy(0, document.body.scrollHeight);
         })
-        await page.waitForNetworkIdle({ idleTime: 1500 });
+        await setTimeout(1500);
         items = items.concat(await getItems(page))
 
         const cookie = await page.cookies(url)
@@ -100,6 +101,7 @@ async function getTwitter() {
         console.log(`twitter length: ${trendings.length}`);
         const result = await postWebsite(5, "Twitter", JSON.stringify(trendings), "1,3,")
         console.log(result.data);
+        appendLog(`${result.data}\n`)
     } catch (err) {
         console.error(err);
     } finally {
@@ -110,6 +112,7 @@ async function getTwitter() {
             await browser.close()
         }
     }
+    appendLog("-----------------twitter end-------------------\n")
     console.log("-----------------twitter end-------------------");
 }
 

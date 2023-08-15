@@ -15,6 +15,13 @@ async function writeFile(name, content, opt) {
     }
 }
 
+async function appendLog(content) {
+    try {
+        fs.appendFileSync("log.txt", content)
+    } catch (err) {
+    }
+}
+
 function md5(content) {
     return crypto
         .createHash("md5")
@@ -22,8 +29,14 @@ function md5(content) {
         .digest("hex");
 }
 
+async function setTimeout(timeout) {
+    return new Promise(r => setTimeout(r, timeout))
+}
+
 module.exports = {
     writeFile,
     readFile,
-    md5
+    appendLog,
+    md5,
+    setTimeout
 }

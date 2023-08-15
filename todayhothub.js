@@ -1,4 +1,3 @@
-const schedule = require('node-schedule');
 const { getGithub } = require("./github")
 const { getGoogle } = require("./google")
 const { getProductHunt } = require("./producthunt")
@@ -18,9 +17,4 @@ async function load() {
     await getYoutube()
 }
 
-// load()
-
-var event = schedule.scheduleJob("*/5 * * * *", function () {
-    load()
-});
-
+load()

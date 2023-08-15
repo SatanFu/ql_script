@@ -1,9 +1,11 @@
 const puppeteer = require('puppeteer')
 const { postWebsite } = require('./http');
+const { appendLog } = require('./util');
 
 const url = "https://www.reddit.com/r/popular/hot/?geo_filter=us";
 
 async function getReddit() {
+    appendLog("-----------------reddit start-------------------\n")
     console.log("-----------------reddit start-------------------");
     let browser
     let page
@@ -24,6 +26,7 @@ async function getReddit() {
         console.log(`reddit length: ${trendings.length}`);
         const result = await postWebsite(4, "Reddit", JSON.stringify(trendings), "1,2,")
         console.log(result.data);
+        appendLog(`${result.data}\n`)
     } catch (err) {
         console.error(err);
     } finally {
@@ -34,6 +37,7 @@ async function getReddit() {
             await browser.close()
         }
     }
+    appendLog("-----------------reddit end-------------------\n")
     console.log("-----------------reddit end-------------------");
 }
 

@@ -1,10 +1,12 @@
 const puppeteer = require('puppeteer')
 const { postWebsite } = require('./http');
+const { appendLog } = require('./util');
 
 const url = "https://producthunt-trending.js.org/?range=daily";
 
 async function getProductHunt() {
     console.log("-----------------producthunt start-------------------");
+    appendLog("-----------------producthunt start-------------------\n")
     let browser
     let page
     try {
@@ -20,6 +22,7 @@ async function getProductHunt() {
         console.log(`producthunt length: ${trendings.length}`);
         const result = await postWebsite(3, "ProductHunt", JSON.stringify(trendings), "1,7,")
         console.log(result.data);
+        appendLog(`${result.data}\n`)
     } catch (err) {
         console.error(err);
     } finally {
@@ -30,6 +33,7 @@ async function getProductHunt() {
             await browser.close()
         }
     }
+    appendLog("-----------------producthunt end-------------------\n")
     console.log("-----------------producthunt end-------------------");
 }
 

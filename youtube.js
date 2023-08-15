@@ -1,10 +1,12 @@
 const puppeteer = require('puppeteer');
 const { postWebsite } = require('./http');
+const { appendLog } = require('./util');
 
 const url = "https://www.youtube.com/feed/trending?persist_gl=1&gl=US";
 
 
 async function getYoutube() {
+    appendLog("-----------------youtube start-------------------\n")
     console.log("-----------------youtube start-------------------");
     let browser
     let page
@@ -21,6 +23,7 @@ async function getYoutube() {
         console.log(`youtube length: ${trendings.length}`);
         const result = await postWebsite(7, "Youtube", JSON.stringify(trendings), "1,5,")
         console.log(result.data);
+        appendLog(`${result.data}\n`)
     } catch (err) {
         console.error(err);
     } finally {
@@ -31,6 +34,7 @@ async function getYoutube() {
             await browser.close()
         }
     }
+    appendLog("-----------------youtube end-------------------\n")
     console.log("-----------------youtube end-------------------");
 }
 
