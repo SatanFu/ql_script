@@ -1,6 +1,6 @@
 const dotenv = require('dotenv')
 const puppeteer = require('puppeteer')
-const { writeFile, readFile, setTimeout, appendLog } = require("./util");
+const { writeFile, readFile, delay, appendLog } = require("./util");
 const { postWebsite } = require('./http');
 
 const url = "https://twitter.com/i/trends";
@@ -39,7 +39,7 @@ async function getTwitter() {
             await page.type("input[autocomplete=username]", process.env.TWITTER_EMAIL, { delay: 50 });
             await page.keyboard.press('Enter');
 
-            await setTimeout(1500);
+            await delay(1500);
             const extractedText = await page.$eval("*", (el) => el.innerText);
             if (extractedText.includes("Enter your phone number or username") || extractedText.includes("输入你的手机号码或用户名")) {
                 await page.waitForSelector("[autocomplete=on]");
@@ -47,13 +47,14 @@ async function getTwitter() {
                 await page.keyboard.press('Enter');
             }
 
-            await setTimeout(1500);
+            await delay(1500);
             await page.waitForSelector("[autocomplete=current-password]");
             await page.type("input[autocomplete=current-password]", process.env.TWITTER_PASSWORD, { delay: 50 });
             await page.keyboard.press('Enter');
         }
         console.log("登录成功");
-
+        const cookie = await page.cookies(url)
+        await writeFile("cookies.json", JSON.stringify(cookie), "w")
 
         const setting = await page.waitForSelector("a[data-testid=settingsAppBar]")
         await setting.click()
@@ -67,7 +68,7 @@ async function getTwitter() {
 
         await page.type("input[data-testid=locationSearchBox]", "美国", { delay: 50 });
 
-        await setTimeout(1500);
+        await delay(1500);
         await page.waitForSelector("div[data-testid=cellInnerDiv] > div[role=button]")
         const locations = await page.$$("div[data-testid=cellInnerDiv] > div[role=button]")
         if (locations && locations.length > 0) {
@@ -77,19 +78,18 @@ async function getTwitter() {
         const close = await page.waitForSelector("div[data-testid=app-bar-close]")
         await close.click()
 
-        await setTimeout(1500);
+        await delay(1500);
         await page.waitForSelector("[data-testid=cellInnerDiv]");
-        await setTimeout(1500);
+        await delay(1500);
         var items = await getItems(page)
 
         await page.evaluate(() => {
             window.scrollBy(0, document.body.scrollHeight);
         })
-        await setTimeout(1500);
+        await delay(1500);
         items = items.concat(await getItems(page))
 
-        const cookie = await page.cookies(url)
-        await writeFile("cookies.json", JSON.stringify(cookie), "w")
+
 
         const trendings = items.filter(function (item, index, self) {
             return self.indexOf(item) == index;

@@ -29,8 +29,8 @@ function md5(content) {
         .digest("hex");
 }
 
-async function setTimeout(timeout) {
-    return new Promise(r => setTimeout(r, timeout))
+function delay(t) {
+    return new Promise(resolve => setTimeout(resolve, t));
 }
 
 module.exports = {
@@ -38,5 +38,5 @@ module.exports = {
     readFile,
     appendLog,
     md5,
-    setTimeout
+    delay
 }
